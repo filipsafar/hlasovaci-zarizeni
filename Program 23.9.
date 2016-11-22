@@ -1,0 +1,62 @@
+#include <OnewireKeypad.h> // OneWireKeypad Library
+#include <Password.h>
+ 
+Password password = Password("48101939");
+//Password password = Password( "1234" );
+ 
+ 
+char KEYS[]= {  // Define keys values of Keypad
+  '1','2','3',
+  '4','5','6',
+  '7','8','9',
+  '*','0','#'
+};
+ 
+/* Define Library :
+      OnewireKeypad <Print, #of buttons>
+      Keypad(Serial, Char values, #Rows, #Cols, Arduino Pin, Row_resistor, Columns_resistor) */
+OnewireKeypad <Print, 16 > Keypad(Serial, KEYS, 4, 3, A0, 4700, 1000 );
+ 
+void setup ()
+{
+  Serial.begin(9600);
+  Keypad.SetHoldTime(10);  // Key held time in ms
+  //Keypad.SetDebounceTime(2); // Key Debounce time in ms  
+}
+ 
+void loop() 
+{
+    keyEvent(); //check for keypad event
+}
+ 
+void keyEvent(){
+        if ((Keypad.Key_State() == 3)) {  // not pressed = 0, pressed = 1, released = 2,  held = 3
+        char keypress = Keypad.Getkey();  // put value of key pressed in variable 'keypress'
+      
+            switch (keypress){
+           case '#': 
+                    checkPassword();  //check password
+                    Serial.println("Checking Password");
+                    break;
+           case '*':
+                    password.reset(); //resets pass
+                    Serial.println("Password Reset");
+                    break;
+           default: 
+                    password.append(keypress); //adds key to password string
+             }
+        Serial.print("Key Pressed: ");
+        Serial.println(keypress);  // Display value on Serial Monitor
+        while ((Keypad.Key_State())){}  // Stay here while Key is held down
+      }
+}
+void checkPassword(){
+  if (password.evaluate()){
+    Serial.println("Success");
+    //Add code to run if it works
+    
+  }else{
+    Serial.println("Wrong");
+    //add code to run if it did not work
+  }
+}
