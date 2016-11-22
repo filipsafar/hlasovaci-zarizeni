@@ -1,0 +1,78 @@
+#include <Keypad.h>
+ 
+int LED_CLOSE = 11;
+int LED_OPEN = 12; 
+int LED_BLUE = 13;  
+const byte ROWS = 4; 
+const byte COLS = 4; 
+char pressedKey[5] = {'0','0','0','0'};
+char code[5] = {'1','9','4','7'};
+char hexaKeys[ROWS][COLS] = {
+  {'1','2','3','A'},
+  {'4','5','6','B'},
+  {'7','8','9','C'},
+  {'*','0','#','D'}
+};
+byte rowPins[ROWS] = {9, 8, 7, 6};
+byte colPins[COLS] = {5, 4, 3, 2};
+Keypad customKeypad = Keypad( makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
+ 
+void setup(){
+  pinMode(LED_OPEN, OUTPUT); 
+  pinMode(LED_CLOSE, OUTPUT);
+  pinMode(LED_BLUE, OUTPUT); 
+  digitalWrite(LED_CLOSE, HIGH);
+  Serial.begin(9600);
+}
+ 
+void loop(){
+  char customKey = customKeypad.getKey();
+ 
+  if (customKey){    
+    Serial.print("Stisknuta klavesa: ");
+    Serial.println(customKey);
+    if (customKey == '#')
+    {
+    digitalWrite(LED_BLUE, HIGH);
+    delay(160);
+    digitalWrite(LED_BLUE, LOW); 
+      if ((pressedKey[0] == code[0]) && (pressedKey[1] == code[1]) && (pressedKey[2] == code[2]) && (pressedKey[3] == code[3]))
+        {
+         
+          digitalWrite(LED_CLOSE, LOW); 
+          digitalWrite(LED_OPEN, HIGH);     
+          Serial.println("Heslo prijato!");
+          Serial.println("");
+          tone(10,2400,80); 
+          delay(160); 
+          tone(10,2400,80); 
+          delay(160);
+          tone(10,2400,80); 
+          delay(4000); 
+          digitalWrite(LED_OPEN, LOW); 
+          digitalWrite(LED_CLOSE, HIGH);
+          pressedKey[0] = '0';
+          pressedKey[1] = '0';
+          pressedKey[2] = '0';
+          pressedKey[3] = '0';
+        }
+    else {
+      tone(10,500,80);
+      Serial.println("Spatne heslo!");
+      Serial.println("");
+    }     
+    }
+   
+     else
+    {
+    pressedKey[0] = pressedKey[1];
+    pressedKey[1] = pressedKey[2];
+    pressedKey[2] = pressedKey[3];
+    pressedKey[3] = customKey;
+    tone(10,1200,80);
+    digitalWrite(LED_BLUE, HIGH);
+    delay(160);
+    digitalWrite(LED_BLUE, LOW); 
+    }
+}
+}
