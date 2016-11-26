@@ -1,0 +1,35 @@
+#include <Keypad.h>
+//vysilac_s_klavesnici
+#include <SPI.h>
+#include <nRF24L01.h>
+#include <RF24.h>
+RF24 radio(7, 8);
+const byte rxAddr[6] = "00001";
+const byte radky = 4;
+const byte sloupce = 4;
+char keys[radky][sloupce] = {
+  {'1','2','3'},
+  {'4','5','6'},
+  {'7','8','9'}
+ // {'*','0','#','D'}
+};
+byte pinyRadku[radky] = {2, 9, 6};
+byte pinySloupcu[sloupce] = {5, 4, 3};
+Keypad klavesnice = Keypad( makeKeymap(keys), pinyRadku, pinySloupcu, radky, sloupce); 
+void setup() {
+  Serial.begin(57600);
+  radio.begin();
+  radio.setRetries(15, 15);
+  radio.openWritingPipe(rxAddr);  
+  radio.stopListening();
+}  
+void loop() {
+  char klavesa = klavesnice.getKey();
+  if (klavesa){    
+    Serial.print("Stisknuta klavesa: ");
+    Serial.println(klavesa);
+    //const char text[] = "Stisknuta klavesa: " + klavesa;
+    radio.write(&klavesa, sizeof(klavesa));
+    delay(50);
+  }
+}
